@@ -19,8 +19,13 @@ int main(int argc, char* argv[]) {
 
 	server.default_resource["GET"] = [](shared_ptr<HttpServer::Response> response, shared_ptr<HttpServer::Request> request) {
 		try {
-			auto web_root_path = boost::filesystem::current_path(); // canonical("web");
-			auto path = boost::filesystem::canonical(web_root_path / request->path);
+			auto web_root_path = boost::filesystem::current_path(); //canonical("get");
+			auto check = request->path.substr(0, 5);
+			auto fname = request->path.substr(5);
+			if (check != "/get/" || fname.find('/') != std::string::npos || fname.find('\\') != std::string::npos) {
+				throw invalid_argument("usage: /get/<filename>");
+			}
+			auto path = boost::filesystem::canonical(web_root_path / fname);
 			// Check if path is within web_root_path
 			if (distance(web_root_path.begin(), web_root_path.end()) > distance(path.begin(), path.end()) ||
 				!equal(web_root_path.begin(), web_root_path.end(), path.begin()))
